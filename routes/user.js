@@ -2,7 +2,36 @@ const express = require("express");
 const User = require("../model/user");
 const authenticate = require("../middleware/auth")
 const router = express.Router();
+const UserDetail = require("../model/userDetails")
 
+router.get("/userDetails", async(req, res)=>{
+    try {
+       const users = await UserDetail.find({}).populate("user");
+       console.log(users)
+       if(!users){
+            return res.status(400).json({success: false, data: "no user found"})
+       }
+       return res.status(200).json({success: true, data: users})
+    } catch (error) {
+        console.log(error)
+        return res.status(400).json({success: false, data: "no user found"})
+    }
+});
+
+router.post("/userDetails/insert", async(req, res)=>{
+    try {
+        const {userId, address, mobileNo} = req.body;
+        
+        const user= new UserDetail({
+            userId, address, mobileNo
+        })
+        await user.save();
+        return res.status(200).json({success:true, data: "Created successfully"});
+    } catch (error) {
+        console.log(error)
+        return res.status(400).json({success: false, data: "no user found"})
+    }
+});
 
 router.get("/:id", authenticate, async(req,res)=>{
    try {
